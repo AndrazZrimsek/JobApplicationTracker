@@ -15,10 +15,10 @@ public class ApplicationsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] ApplicationQueryDto query)
     {
-        var applications = await _applicationService.GetAllAsync();
-        return Ok(applications);
+        var result = await _applicationService.GetAllAsync(query);
+        return Ok(result);
     }
 
     [HttpGet("{id}")]
@@ -32,8 +32,17 @@ public class ApplicationsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddApplication (JobApplication application)
+    public async Task<IActionResult> AddApplication (CreateJobApplicationDto request)
     {
+        var application = new JobApplication
+        {
+            Company = request.Company,
+            Position = request.Position,
+            Status = request.Status,
+            AppliedDate = request.AppliedDate,
+            Notes = request.Notes
+        };
+
         var newApplication = await _applicationService.CreateApplicationAsync(application);
         return Created($"/api/applications/{newApplication.Id}", newApplication);
     }
@@ -47,9 +56,18 @@ public class ApplicationsController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateApplication(int id, JobApplication request)
+    public async Task<IActionResult> UpdateApplication(int id, UpdateJobApplicationDto request)
     {
-        return await _applicationService.UpdateApplicationAsync(id, request)
+        var application = new JobApplication
+        {
+            Company = request.Company,
+            Position = request.Position,
+            Status = request.Status,
+            AppliedDate = request.AppliedDate,
+            Notes = request.Notes
+        };
+
+        return await _applicationService.UpdateApplicationAsync(id, application)
             ? NoContent()
             : NotFound();
     }

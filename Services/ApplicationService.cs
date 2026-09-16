@@ -12,9 +12,34 @@ public class ApplicationService : IApplicationService
         _context = context;
     }
 
-    public async Task<IEnumerable<JobApplication>> GetAllAsync()
+    public async Task<PagedResult<JobApplication>> GetAllAsync(ApplicationQueryDto queryDto)
     {
-        return await _context.Applications.ToListAsync();
+        var query = _context.Applications.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(queryDto.Status))
+        {
+            query = query.Where(a => a.Status == queryDto.Status);
+        }
+
+        if (!string.IsNullOrWhiteSpace(queryDto.Company))
+        {
+            query = query.Where(a => a.Company.Contains(queryDto.Company));
+        }
+
+        var totalCount = await query.CountAsync();
+
+        query = query
+            .OrderByDescending(a => a.AppliedDate)
+            .Skip(queryDto.PageSize*(queryDto.Page-1))
+            .Take(queryDto.PageSize);
+
+        var items = await query.ToListAsync();
+
+        return new PagedResult<JobApplication>
+        {
+            Items = items,
+            TotalCount = totalCount
+        };
     }
 
     public async Task<JobApplication?> GetByIdAsync(int id)
