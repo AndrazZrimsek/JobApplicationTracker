@@ -4,9 +4,9 @@ namespace JobApplicationTracker.Services;
 
 public interface IApplicationService
 {
-    IEnumerable<JobApplication> GetAll();
-    JobApplication? GetById(int id);
-    JobApplication AddApplication (JobApplication application);
-    bool DeleteApplication (int id);
-    bool UpdateApplication(int id, JobApplication request);
+    Task<IEnumerable<JobApplication>> GetAllAsync();
+    Task<JobApplication?> GetByIdAsync(int id);
+    Task<JobApplication> CreateApplicationAsync(JobApplication application);
+    Task<bool> DeleteApplicationAsync(int id);
+    Task<bool> UpdateApplicationAsync(int id, JobApplication request);
 }

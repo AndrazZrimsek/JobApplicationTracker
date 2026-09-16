@@ -1,5 +1,7 @@
+using JobApplicationTracker.Data;
 using JobApplicationTracker.Models;
 using JobApplicationTracker.Services;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,7 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
-builder.Services.AddSingleton<IApplicationService, ApplicationService>();
+builder.Services.AddDbContext<ApplicationDbContext>(options => 
+    options.UseSqlite(
+        builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<IApplicationService, ApplicationService>();
 
 var app = builder.Build();
 

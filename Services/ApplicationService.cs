@@ -1,54 +1,54 @@
+using JobApplicationTracker.Data;
 using JobApplicationTracker.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace JobApplicationTracker.Services;
 
 public class ApplicationService : IApplicationService
 {
-    private readonly List<JobApplication> _applications;
-    public ApplicationService()
+    private readonly ApplicationDbContext _context;
+    public ApplicationService(ApplicationDbContext context)
     {
-        _applications = new List<JobApplication>();
+        _context = context;
     }
 
-    public IEnumerable<JobApplication> GetAll()
+    public async Task<IEnumerable<JobApplication>> GetAllAsync()
     {
-        return _applications;
+        return await _context.Applications.ToListAsync();
     }
 
-    public JobApplication? GetById(int id)
+    public async Task<JobApplication?> GetByIdAsync(int id)
     {
-        var application = _applications.FirstOrDefault(a => a.Id == id);
+        return await _context.Applications.FindAsync(id);
+    }
+
+    public async Task<JobApplication> CreateApplicationAsync (JobApplication application)
+    {
+        _context.Applications.Add(application);
+
+        await _context.SaveChangesAsync();
+
         return application;
     }
 
-    public JobApplication AddApplication (JobApplication application)
+    public async Task<bool> DeleteApplicationAsync (int id)
     {
-        int newId = _applications.Count > 0
-            ? _applications.Max(a => a.Id) + 1
-            : 1;
-
-        application.Id = newId;
-
-        _applications.Add(application);
-        return application;
-    }
-
-    public bool DeleteApplication (int id)
-    {
-        var application = _applications.Find(a => a.Id == id);
+        var application = await _context.Applications.FindAsync(id);
 
         if (application is not null)
         {
-            _applications.Remove(application);
+            _context.Applications.Remove(application);
+            await _context.SaveChangesAsync();
             return true;
         }
 
         return false;
     }
 
-    public bool UpdateApplication(int id, JobApplication request)
+    public async Task<bool> UpdateApplicationAsync(int id, JobApplication request)
     {
-        var application = _applications.Find(a => a.Id == id);
+        var application = await _context.Applications.FindAsync(id);
+
         if (application is not null)
         {
             application.Company = request.Company;
@@ -57,6 +57,7 @@ public class ApplicationService : IApplicationService
             application.AppliedDate = request.AppliedDate;
             application.Notes = request.Notes;
             
+            await _context.SaveChangesAsync();
             return true;
         }
 

@@ -15,15 +15,16 @@ public class ApplicationsController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetAll()
+    public async Task<IActionResult> GetAll()
     {
-        return Ok(_applicationService.GetAll());
+        var applications = await _applicationService.GetAllAsync();
+        return Ok(applications);
     }
 
     [HttpGet("{id}")]
-    public IActionResult GetById(int id)
+    public async Task<IActionResult> GetById(int id)
     {
-        var application = _applicationService.GetById(id);
+        var application = await _applicationService.GetByIdAsync(id);
 
         return application is not null
             ? Ok(application)
@@ -31,24 +32,24 @@ public class ApplicationsController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult AddApplication (JobApplication application)
+    public async Task<IActionResult> AddApplication (JobApplication application)
     {
-        var newApplication = _applicationService.AddApplication(application);
+        var newApplication = await _applicationService.CreateApplicationAsync(application);
         return Created($"/api/applications/{newApplication.Id}", newApplication);
     }
 
     [HttpDelete("{id}")]
-    public IActionResult DeleteApplication (int id)
+    public async Task<IActionResult> DeleteApplication (int id)
     {
-        return _applicationService.DeleteApplication(id)
+        return await _applicationService.DeleteApplicationAsync(id)
             ? NoContent()
             : NotFound();
     }
 
     [HttpPut("{id}")]
-    public IActionResult UpdateApplication(int id, JobApplication request)
+    public async Task<IActionResult> UpdateApplication(int id, JobApplication request)
     {
-        return _applicationService.UpdateApplication(id, request)
+        return await _applicationService.UpdateApplicationAsync(id, request)
             ? NoContent()
             : NotFound();
     }
