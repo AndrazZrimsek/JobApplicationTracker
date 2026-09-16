@@ -1,0 +1,10 @@
+PUT http://localhost:5057/api/applications HTTP/1.1
+content-type: application/json
+
+{
+    "company": "Example Corp",
+    "position": "Software Engineer II",
+    "status": "Interview",
+    "appliedDate": "2026-09-15",
+    "notes": "Technical interview scheduled"
+}

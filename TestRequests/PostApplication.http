@@ -1,0 +1,10 @@
+POST http://localhost:5057/api/applications HTTP/1.1
+content-type: application/json
+
+{
+    "Company": "Example corp",
+    "Position": "Software Engineer",
+    "Status": "Applied",
+    "AppliedDate": "2026-09-15",
+    "notes": "Applied through company website"
+}
