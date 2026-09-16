@@ -7,9 +7,14 @@ namespace JobApplicationTracker.Services;
 public class ApplicationService : IApplicationService
 {
     private readonly ApplicationDbContext _context;
-    public ApplicationService(ApplicationDbContext context)
+    private readonly ILogger<ApplicationService> _logger;
+
+    public ApplicationService(
+        ApplicationDbContext context,
+        ILogger<ApplicationService> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     public async Task<PagedResult<JobApplication>> GetAllAsync(ApplicationQueryDto queryDto)
@@ -44,7 +49,16 @@ public class ApplicationService : IApplicationService
 
     public async Task<JobApplication?> GetByIdAsync(int id)
     {
-        return await _context.Applications.FindAsync(id);
+        var application = await _context.Applications.FindAsync(id);
+
+        if (application is null)
+        {
+            _logger.LogInformation(
+                "Job application {ApplicationId} was not found",
+                id);
+        }
+
+        return application;
     }
 
     public async Task<JobApplication> CreateApplicationAsync (JobApplication application)
@@ -52,6 +66,11 @@ public class ApplicationService : IApplicationService
         _context.Applications.Add(application);
 
         await _context.SaveChangesAsync();
+
+        _logger.LogInformation(
+            "Created job application {ApplicationId} for {Company}",
+            application.Id,
+            application.Company);
 
         return application;
     }
@@ -64,9 +83,17 @@ public class ApplicationService : IApplicationService
         {
             _context.Applications.Remove(application);
             await _context.SaveChangesAsync();
+
+            _logger.LogInformation(
+                "Deleted job application {ApplicationId}",
+                id);
+
             return true;
         }
 
+        _logger.LogWarning(
+            "Job application {ApplicationId} was not found",
+            id);
         return false;
     }
 
@@ -83,8 +110,17 @@ public class ApplicationService : IApplicationService
             application.Notes = request.Notes;
             
             await _context.SaveChangesAsync();
+
+            _logger.LogInformation(
+                "Updated job application {ApplicationId}",
+                id);
+
             return true;
         }
+
+        _logger.LogWarning(
+            "Job application {ApplicationId} was not found",
+            id);
 
         return false;
     }

@@ -12,6 +12,7 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<ApplicationDbContext>(options => 
     options.UseSqlite(
         builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddProblemDetails();
 builder.Services.AddScoped<IApplicationService, ApplicationService>();
 
 var app = builder.Build();
@@ -22,6 +23,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseExceptionHandler();
 app.UseHttpsRedirection();
 
 app.MapControllers();
