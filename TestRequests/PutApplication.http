@@ -1,4 +1,4 @@
-PUT http://localhost:5057/api/applications HTTP/1.1
+PUT http://localhost:5057/api/applications/1 HTTP/1.1
 content-type: application/json
 
 {
